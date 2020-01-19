@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:jpush_flutter/jpush_flutter.dart';
+
+// import 'package:http/http.dart' as http;
 
 void main() => runApp(MyApp());
 
@@ -47,6 +50,16 @@ class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
   void _incrementCounter() {
+    var localNotification = LocalNotification(
+        id: 234,
+        title: 'jpush title',
+        buildId: 1,
+        content: 'jpush content',
+        fireTime: DateTime.now(),
+        subtitle: 'jpush subtitle', // 该参数只有在 iOS 有效
+        badge: 5 // 该参数只有在 iOS 有效
+        );
+    jpush.sendLocalNotification(localNotification).then((res) {});
     setState(() {
       // This call to setState tells the Flutter framework that something has
       // changed in this State, which causes it to rerun the build method below
@@ -55,6 +68,34 @@ class _MyHomePageState extends State<MyHomePage> {
       // called again, and so nothing would appear to happen.
       _counter++;
     });
+  }
+
+  JPush jpush = new JPush();
+
+  @override
+  void initState() {
+    super.initState();
+
+    print('init JPush');
+    jpush.setup(
+        appKey: '7a59e61668be1b48d8e61295',
+        channel: 'test',
+        production: false,
+        debug: true);
+    jpush.addEventHandler(
+      // 接收通知回调方法。
+      onReceiveNotification: (Map<String, dynamic> message) async {
+        print(" ${DateTime.now()}  flutter onReceiveNotification: $message");
+      },
+      // 点击通知回调方法。
+      onOpenNotification: (Map<String, dynamic> message) async {
+        print("flutter onOpenNotification: $message");
+      },
+      // 接收自定义消息回调方法。
+      onReceiveMessage: (Map<String, dynamic> message) async {
+        print("flutter onReceiveMessage: $message");
+      },
+    );
   }
 
   @override
@@ -92,7 +133,7 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              'You have pushed the button this many times:',
+              '你已经点击 the button this many times:',
             ),
             Text(
               '$_counter',
